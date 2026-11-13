@@ -1,146 +1,94 @@
 # Lectura AI 🎓
 
-> **Transform YouTube Content into Verified, Structured University-Grade Study Notes**
+**Turn YouTube lectures into organised study notes.**
 
-Lectura AI is a production-grade, AI-powered learning platform that converts single YouTube videos and entire course playlists into comprehensive, verified study materials. Built with an agentic multi-stage pipeline, it extracts transcripts, synthesizes hierarchical academic notes, generates flashcards, interactive quizzes, and allows you to chat with your video content.
+Lectura AI is a learning platform that helps students make better use of educational YouTube videos. You can add a single video or an entire playlist and generate study notes, revision summaries, flashcards, and quizzes from the content.
 
----
+The idea behind the project is simple: instead of watching hours of lectures and making notes manually, students can get organised study material in one place. It also includes a fact-checking step to review AI-generated notes, a chatbot to ask questions about lectures, and progress tracking to help students revise more effectively.
 
-## 🌟 Key Features
+## Features
 
-- 📹 **YouTube Video & Playlist Ingestion**: Ingest single videos or multi-video lecture series automatically with metadata and transcript extraction.
-- 📝 **Multi-Tiered Academic Notes**:
-  - **Comprehensive Master Notes**: Deep academic breakdowns with LaTeX equations, diagrams, and timestamped citations.
-  - **Executive Revision Notes**: High-yield summaries with cheat sheets and formula tables.
-  - **Last-Minute Flash Notes**: 5-minute pre-exam memory anchors and core definitions.
-- 🔍 **Fact-Checking & Verification Agent**: Detects hallucinations, verifies mathematical formulas, cross-checks claims, and scores academic rigor.
-- 🧠 **Active Recall Suite**: Automatic spaced-repetition flashcard generation and adaptive multiple-choice quizzes.
-- 💬 **Interactive Lecture Chatbot**: Ask questions directly to the video context with pinpoint timestamp citations.
-- 📊 **Mastery Analytics**: Track progress, quiz scores, and study streak over time.
+- **YouTube Integration:** Add individual videos or complete playlists.
+- **Study Notes:** Generate detailed notes, short revision notes, and last-minute summaries.
+- **Fact Verification:** Check generated content for possible errors and unsupported information.
+- **Flashcards & Quizzes:** Practise concepts through flashcards and interactive MCQs.
+- **Lecture Chat:** Ask questions about video content and get answers with timestamps.
+- **Progress Tracking:** Keep track of quiz scores, learning progress, and study activity.
 
----
+## Tech Stack
 
-## 🏗️ Architecture & Technology Stack
+**Backend:** Python, FastAPI, PostgreSQL, SQLAlchemy, Redis, Celery
 
-### Backend
-- **Framework**: FastAPI (Python 3.11+)
-- **Database**: PostgreSQL 16 with async SQLAlchemy 2.0 & asyncpg
-- **Migrations**: Alembic
-- **Caching & Queues**: Redis 7 & Celery
-- **Agent Orchestration**: LangGraph & LangChain (OpenAI GPT-4o / GPT-4o-mini)
-- **Transcription**: `youtube-transcript-api` with fallback mechanisms
-- **Security**: JWT Authentication (python-jose), bcrypt password hashing
+**AI & Processing:** LangGraph, LangChain, OpenAI API, YouTube Transcript API
 
-### Frontend
-- **Framework**: React 18 with TypeScript & Vite
-- **Styling**: Tailwind CSS & Lucide Icons
-- **State Management**: Zustand & TanStack Query (React Query)
-- **UI System**: Radix UI primitives with custom accessible Tailwind styling
-- **Rich Content**: React Markdown, Rehype-KaTeX (LaTeX rendering), Mermaid.js diagrams, Recharts analytics
+**Frontend:** React, TypeScript, Vite, Tailwind CSS, Zustand
 
----
+**Other Tools:** Docker, Alembic, Recharts, Mermaid.js
 
-## 🚀 Quick Start Guide
+## Getting Started
 
 ### Prerequisites
-- Docker & Docker Compose installed
-- Python 3.11+ & Node.js 18+ (for local bare-metal development)
-- OpenAI API Key (or compatible LLM provider)
+- Python 3.11+
+- Node.js 18+
+- Docker and Docker Compose
+- OpenAI API key
 
-### 1. Clone & Configure Environment
+### Installation
+
+Clone the repository:
 
 ```bash
-git clone https://github.com/your-org/lectura-ai.git
-cd lectura-ai
+git clone https://github.com/YOUR_USERNAME/Lectura-AI.git
+cd Lectura-AI
+```
 
-# Copy environment variables
+Set up the environment files:
+
+```bash
 cp .env.example .env
 cp backend/.env.example backend/.env
 ```
 
-Edit `.env` and `backend/.env` with your API keys (e.g., `OPENAI_API_KEY`).
+Add your API keys and database configuration to the environment files.
 
-### 2. Run with Docker Compose
+### Run with Docker
 
 ```bash
 docker-compose up --build
 ```
 
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:8000`
-- API Docs (Swagger): `http://localhost:8000/docs`
+Once running, access:
 
----
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
 
-## 💻 Local Development Setup
+## Project Structure
 
-### Backend Setup
-
-```bash
-cd backend
-python -m venv venv
-# Windows:
-.\venv\Scripts\activate
-# Unix/macOS:
-source venv/bin/activate
-
-pip install -r requirements.txt
-alembic upgrade head
-uvicorn app.main:app --reload --port 8000
-```
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
----
-
-## 📂 Project Structure
-
-```
-lectura-ai/
-├── docker-compose.yml          # Container orchestration
-├── .gitignore                  # Git ignore rules
-├── README.md                   # Project overview
-├── docs/                       # Architecture & API specifications
-│   ├── architecture.md
-│   ├── api.md
-│   ├── decisions.md
-│   └── development_log.md
+```text
+Lectura-AI/
 ├── backend/
-│   ├── alembic/                # Database migrations
 │   ├── app/
-│   │   ├── api/                # FastAPI endpoint routers
-│   │   ├── core/               # Logging, security, exceptions
-│   │   ├── database/           # SQLAlchemy models, schemas, connection
-│   │   ├── services/           # YouTube and external services
-│   │   ├── workflows/          # LangGraph agent workflows
-│   │   ├── config.py           # Pydantic environment settings
-│   │   ├── dependencies.py     # FastAPI dependencies (auth, db)
-│   │   └── main.py             # App initialization and middleware
-│   ├── tests/                  # Pytest test suite
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── database/
+│   │   ├── services/
+│   │   └── workflows/
+│   ├── tests/
 │   └── requirements.txt
-└── frontend/
-    ├── src/
-    │   ├── components/         # UI primitives & layouts
-    │   ├── hooks/              # Custom hooks (polling, queries)
-    │   ├── pages/              # Real application views
-    │   ├── services/           # Axios API client
-    │   ├── store/              # Zustand global state
-    │   ├── types/              # TypeScript schema interfaces
-    │   ├── App.tsx             # Route definitions
-    │   └── main.tsx
-    ├── package.json
-    ├── tailwind.config.js
-    └── vite.config.ts
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── store/
+│   └── package.json
+├── docs/
+├── docker-compose.yml
+└── README.md
 ```
 
----
+## License
 
-## 📄 License
-
-MIT License. Built for education and lifelong learning.
+MIT License
