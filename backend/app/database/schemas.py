@@ -340,3 +340,18 @@ class PlaylistProcessRequest(BaseModel):
     generate_flashcards: bool = True
     generate_quizzes: bool = True
 
+
+# ==========================================
+# Phase 3 Schemas: AI Note Generation & Export
+# ==========================================
+
+
+class NotesGenerateRequest(BaseModel):
+    video_id: str
+    course_id: Optional[str] = None
+
+
+class NotesExportRequest(BaseModel):
+    format: str = "pdf"  # "pdf" | "docx" | "md"
+
+

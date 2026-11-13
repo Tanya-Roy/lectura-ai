@@ -34,7 +34,7 @@ class QuizQuestionItem(TypedDict):
 class WorkflowState(TypedDict, total=False):
     """
     Central state dictionary passed across LangGraph pipeline agents:
-    Ingestion -> Structure Extraction -> Note Generation -> Verification -> Active Recall
+    Ingestion -> Understanding -> Note Generation -> Verification -> Revision Loop -> Active Recall -> Finalize
     """
     # Identifiers
     video_id: str
@@ -48,10 +48,13 @@ class WorkflowState(TypedDict, total=False):
 
     # Transcripts & Segmentation
     raw_transcript: str
-    chunks: List[ChunkItem]
-    topics: List[TopicItem]
+    chunks: List[Dict[str, Any]]
+    topics: List[Dict[str, Any]]
 
-    # Synthesized Notes
+    # Phase 3: Topic Map from Understanding Agent
+    topic_map: Dict[str, Any]
+
+    # Synthesized Notes (Multi-Tiered)
     comprehensive_notes: str
     revision_notes: str
     last_minute_notes: str
@@ -65,10 +68,19 @@ class WorkflowState(TypedDict, total=False):
     claims_verified_count: int
     discrepancies: List[Dict[str, Any]]
     feedback_notes: str
+    verification_result: Dict[str, Any]
+
+    # Phase 3: Verification & Revision Tracking
+    verification_attempts: int
+    max_verification_attempts: int
 
     # Active Recall Artifacts
     flashcards: List[FlashcardItem]
     quizzes: List[QuizQuestionItem]
+
+    # Generation Settings
+    generate_flashcards: bool
+    generate_quizzes: bool
 
     # Execution Tracking
     job_id: str

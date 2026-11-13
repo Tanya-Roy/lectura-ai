@@ -134,8 +134,30 @@ export const getNotes = async (params?: {
   return data;
 };
 
-export const getNote = async (noteId: string): Promise<Note> => {
-  const { data } = await apiClient.get<Note>(`/notes/${noteId}`);
+export const getNote = async (noteId: string, type?: string): Promise<Note> => {
+  const { data } = await apiClient.get<Note>(`/notes/${noteId}`, {
+    params: type ? { type } : undefined,
+  });
+  return data;
+};
+
+export const generateNotes = async (payload: {
+  video_id: string;
+  course_id?: string;
+}): Promise<JobResponse> => {
+  const { data } = await apiClient.post<JobResponse>("/notes/generate", payload);
+  return data;
+};
+
+export const exportNote = async (
+  noteId: string,
+  format: "pdf" | "docx" | "md",
+  type?: string
+): Promise<Blob> => {
+  const { data } = await apiClient.get(`/notes/${noteId}/export/${format}`, {
+    params: type ? { type } : undefined,
+    responseType: "blob",
+  });
   return data;
 };
 

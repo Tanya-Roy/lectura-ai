@@ -5,8 +5,10 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.core.exceptions import VideoProcessingError
 from app.core.job_registry import job_registry
+from app.core.logging import logger
 from app.database.connection import get_db
 from app.database.models import JobStatus
 from app.database.schemas import (
@@ -21,6 +23,7 @@ from app.database.schemas import (
     VideoResponse,
 )
 from app.dependencies import get_current_user
+from app.services.notes_service import notes_generation_service
 from app.services.playlist_service import playlist_ingestion_service
 from app.services.transcript_service import INGESTION_RESULTS, video_ingestion_service
 from app.services.youtube_service import (
@@ -51,6 +54,38 @@ def _to_job_response(record) -> JobResponse:
         started_at=record.started_at,
         completed_at=record.completed_at,
     )
+
+
+async def _full_pipeline_task(
+    url: str,
+    job_id: str,
+    course_id: str,
+    generate_flashcards: bool = True,
+    generate_quizzes: bool = True,
+):
+    """Runs ingestion -> note generation as a single seamless pipeline."""
+    try:
+        # Step 1: Ingest video (Phase 2)
+        result = await video_ingestion_service.ingest_video(
+            url=url,
+            job_registry=job_registry,
+            job_id=job_id,
+            course_id=course_id,
+            generate_flashcards=generate_flashcards,
+            generate_quizzes=generate_quizzes,
+        )
+
+        # Step 2: If ingestion completed -> generate verified notes (Phase 3)
+        if result.status == "completed":
+            logger.info(f"Ingestion finished for {result.video_id}. Starting Phase 3 AI note generation...")
+            await notes_generation_service.generate_notes_for_video(
+                video_id=result.video_id,
+                job_id=job_id,
+                job_registry=job_registry,
+                course_id=course_id,
+            )
+    except Exception as exc:
+        logger.error(f"Full pipeline task failure for job {job_id}: {exc}", exc_info=True)
 
 
 @router.post("/process", response_model=JobResponse, status_code=status.HTTP_202_ACCEPTED)
@@ -108,9 +143,8 @@ async def process_video(
     )
 
     asyncio.create_task(
-        video_ingestion_service.ingest_video(
+        _full_pipeline_task(
             url=request.url,
-            job_registry=job_registry,
             job_id=job_record.job_id,
             course_id=course_id,
             generate_flashcards=request.generate_flashcards,
